@@ -33,3 +33,5 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/my-next-js-frontend:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/my-next-js-frontend:${{ github.sha }}
+
+         # above is important
