@@ -1,0 +1,14 @@
+
+#services:
+  #frontend:
+    #container_name: nextjs-frontend
+    #build:
+      #context: .   # Build from current directory
+     # dockerfile: Dockerfile
+    #ports:
+      #- "80:80"   # Map container port 80 to local machine port 80
+    #volumes:
+   #   - ./nginx.conf:/etc/nginx/conf.d/default.conf  # Optional: Custom Nginx config
+   # restart: always   # Restart container if it stops
+  #  environment:
+  #    - SECRET_COOKIE_PASSWORD=${SECRET_COOKIE_PASSWORD}
