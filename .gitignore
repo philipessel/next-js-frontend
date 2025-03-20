@@ -52,3 +52,22 @@ package-lock.json
 
 # Ignore Docker-related files that shouldn't be copied to the image
 .dockerignore
+
+# Ignore fonts
+pages/fonts/
+
+# Ignore images (if they are not necessary for version control)
+public/images/
+
+# Ignore large files
+public/issue-matrix.xlsx
+public/sop.pdf
+# Ignore fonts
+pages/fonts/
+
+# Ignore images (if they are not necessary for version control)
+public/images/
+
+# Ignore large files
+public/issue-matrix.xlsx
+public/sop.pdf
