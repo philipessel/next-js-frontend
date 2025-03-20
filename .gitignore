@@ -33,4 +33,3 @@ pages/fonts/
 # Ignore images (if they are not necessary for version control)
 public/images/
 
-package-lock.json
