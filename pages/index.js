@@ -1,33 +1,37 @@
 import Link from "next/link";
-import {useState} from "react";
+import { useState } from "react";
 import axios from "axios";
 import Head from "next/head";
 
+axios.defaults.withCredentials = true; // ✅ Allows cookies for Laravel Sanctum
 
 export default function Index() {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState("");  // ✅ Fixed: Changed from username to email
+    const [password, setPassword] = useState("");
     const [errors, setErrors] = useState({});
     const [isAuthenticating, setIsAuthenticating] = useState(false);
     const [generalError, setGeneralError] = useState(null);
     const [isRedirecting, setIsRedirecting] = useState(false);
 
-    const handleLogin = async () => {
+    const handleLogin = async (e) => {
+        e.preventDefault(); // ✅ Prevent form submission refresh
         setIsAuthenticating(true);
         setGeneralError(null);
         setErrors({});
 
-
         try {
-            const response = await axios.post("/api/login", { email, password });
+            // ✅ Step 1: Request CSRF cookie from Laravel first
+            await axios.get("http://127.0.0.1:8000/sanctum/csrf-cookie");
 
-           //const response = await axios.post("/api/login", {username, password});
+            // ✅ Step 2: Send login request
+            const response = await axios.post("http://127.0.0.1:8000/api/login", { email, password });
+
             if (response.status === 200) {
-                const {logged_in} = response.data;
+                const { logged_in } = response.data;
 
                 if (logged_in) {
                     setIsRedirecting(true);
-                    window.location.assign('/dashboard');
+                    window.location.assign("/dashboard");
                 }
 
                 if (!logged_in && !response.data.errors) {
@@ -39,41 +43,32 @@ export default function Index() {
                     setErrors(response.data.errors);
                 }
             }
-            setIsAuthenticating(false);
         } catch (err) {
+            setGeneralError("Login failed. Please check your credentials.");
+        } finally {
             setIsAuthenticating(false);
         }
-    }
+    };
 
     return (
-        <div className=" bg-gradient-to-br my-0 to-white via-white via-10% from-white min-h-screen">
+        <div className="bg-gradient-to-br my-0 to-white via-white via-10% from-white min-h-screen">
             <Head>
                 <title>Login</title>
             </Head>
-            <div
-                className="flex w-full items-center justify-center pt-20 ">
+            <div className="flex w-full items-center justify-center pt-20">
                 <div className="min-w-[25vw]">
                     <div className="text-center">
-                        <div className="text-red-500 text-8xl  py-2 px-4">
-                            CLM
-                        </div>
-                        <p className="text-center text-gray-900 font-light">
-                            CLM System
-                        </p>
-                        <p className="text-sm text-gray-500 my-2">
-                            Strengthening Systems.
-                        </p>
+                        <div className="text-red-500 text-8xl py-2 px-4">CLM</div>
+                        <p className="text-center text-gray-900 font-light">CLM System</p>
+                        <p className="text-sm text-gray-500 my-2">Strengthening Systems.</p>
                     </div>
-                    <form action="" className="mt-10">
-                        {
-                            isRedirecting &&
+                    <form className="mt-10" onSubmit={handleLogin}>  {/* ✅ Fix: Prevent form reload */}
+                        {isRedirecting && (
                             <div className="bg-green-700 flex gap-2 text-white px-4 py-4 rounded-lg text-sm">
-                                <span className="loading loading-spinner loading-sm"></span>
-                                Logging in ....
+                                <span className="loading loading-spinner loading-sm"></span> Logging in ....
                             </div>
-                        }
-                        {
-                            generalError &&
+                        )}
+                        {generalError && (
                             <div className="bg-red-400 flex gap-2 text-white px-4 py-4 rounded-lg text-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      strokeWidth="1.5"
@@ -83,38 +78,33 @@ export default function Index() {
                                 </svg>
                                 {generalError}
                             </div>
-                        }
+                        )}
                         <div className="max-w-lg my-4">
-                            <label htmlFor="input-label"
-                                   className="block text-sm font-medium mb-2 dark:text-white">Email</label>
-                            <input type="text" placeholder="Type your email"
-                                   //value="email"
-                                   onChange={(e) => setUsername(e.target.value)}
+                            <label htmlFor="input-label" className="block text-sm font-medium mb-2 dark:text-white">Email</label>
+                            <input type="email" placeholder="Type your email"
+                                   value={email}  // ✅ Fixed: Changed from username
+                                   onChange={(e) => setEmail(e.target.value)}
                                    className="input input-bordered w-full max-w-lg"/>
                             {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                         </div>
                         <div className="max-w-lg my-5">
-                            <label htmlFor="input-label"
-                                   className="block text-sm font-medium mb-2 dark:text-white">Password</label>
+                            <label htmlFor="input-label" className="block text-sm font-medium mb-2 dark:text-white">Password</label>
                             <input type="password" placeholder="Type password"
                                    value={password}
                                    onChange={(e) => setPassword(e.target.value)}
                                    className="input input-bordered w-full max-w-lg"/>
                             {errors.password && <div className="invalid-feedback">{errors.password}</div>}
-
                         </div>
                         <button
                             className="btn btn-primary w-full text-white mb-2"
-                            onClick={handleLogin}
+                            type="submit"
                             disabled={isRedirecting || isAuthenticating}>
-                            {
-                                isAuthenticating ? <span className="loading loading-spinner loading-sm"></span> : ''
-                            }
+                            {isAuthenticating ? <span className="loading loading-spinner loading-sm"></span> : ""}
                             Login
                         </button>
                     </form>
                 </div>
             </div>
         </div>
-    )
+    );
 }
