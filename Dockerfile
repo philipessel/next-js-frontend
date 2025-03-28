@@ -15,11 +15,7 @@ RUN npm run build
 FROM node:18-alpine AS runner
 WORKDIR /app
 
-# # Copy standalone output from the build stage
-# COPY --from=builder /app/.next/standalone ./
-# COPY --from=builder /app/.next/static ./public
-
-
+# Copy standalone output from the build stage
 COPY --from=builder /app/.next/standalone ./ 
 COPY --from=builder /app/.next/static ./.next/static  
 COPY --from=builder /app/public ./public  
