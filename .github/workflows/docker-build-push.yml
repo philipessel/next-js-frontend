@@ -1,5 +1,4 @@
-
-name: Build and Push Docker Image
+name: Build, Push, and Deploy
 
 on:
   push:
@@ -35,3 +34,17 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/my-next-js-frontend:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/my-next-js-frontend:${{ github.sha }}
 
+  trigger-local-script:
+    runs-on: windows-latest
+    needs: build  # Waits for the Docker image to be pushed first
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v2
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Run Deployment Script
+        run: python scripts/push_to_local_registry.py
