@@ -47,4 +47,5 @@ jobs:
           python-version: '3.9'
 
       - name: Run Deployment Script
-        run: python front-end/scripts/push_to_local_registry.py
+        run: python scripts/push_to_local_registry.py
+                            
